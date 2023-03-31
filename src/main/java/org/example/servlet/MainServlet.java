@@ -4,11 +4,13 @@ import org.example.controller.PostController;
 import org.example.model.Post;
 import org.example.repository.PostRepository;
 import org.example.service.PostService;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.text.Annotation;
 import java.text.ParseException;
 import java.util.HashMap;
 import java.util.Map;
@@ -26,17 +28,20 @@ public class MainServlet extends HttpServlet {
     
     }
     
+    
     @Override
     public void init() {
-        final var repository = new PostRepository();
-        final var service = new PostService(repository);
-        controller = new PostController(service);
+        
+        final var context = new AnnotationConfigApplicationContext("org.example.servlet");
+        final var controller = context.getBean("postController");
+        final var service = context.getBean(PostService.class);
         
         standRequest.put(GET, ServiceEnum.getServEnum(GET));
         standRequest.put(POST, ServiceEnum.getServEnum(POST));
         standRequest.put(DELETE, ServiceEnum.getServEnum(DELETE));
         
         threadPool = Executors.newFixedThreadPool(6);
+        
         // for test -------------------------------------------------------
         try {
             service.save(new Post("Первый пост"));
@@ -47,6 +52,11 @@ public class MainServlet extends HttpServlet {
         }
         //-----------------------------------------------------------------
     }
+    /*
+        final var repository = new PostRepository();
+        final var service = new PostService(repository);
+        controller = new PostController(service);
+     */
     
     @Override
     protected void service(HttpServletRequest req, HttpServletResponse resp) throws IOException {
@@ -84,6 +94,7 @@ public class MainServlet extends HttpServlet {
                 resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             }
         };
+        
         
         Future<?> task = threadPool.submit(methThread);
         while (!task.isDone()) continue;

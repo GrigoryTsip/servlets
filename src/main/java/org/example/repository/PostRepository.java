@@ -2,16 +2,13 @@ package org.example.repository;
 
 import org.example.exception.NotFoundException;
 import org.example.model.Post;
+import org.springframework.stereotype.Repository;
 
 import java.util.*;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-
-import static org.example.servlet.MainServlet.threadPool;
 
 // Stub
+@Repository
 public class PostRepository {
     
     private static final ConcurrentHashMap<Long, Post> postMap = new ConcurrentHashMap<>();
@@ -34,7 +31,7 @@ public class PostRepository {
         throw new NotFoundException("Неверный идентификатор поста");
     }
     
-    public Post save(Post post) throws ExecutionException, InterruptedException {
+    public Post save(Post post) {
              if (postMap.containsKey(post.getId())) {
                 postMap.put(post.getId(), post);
             } else {

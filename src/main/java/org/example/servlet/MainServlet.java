@@ -24,17 +24,24 @@ public class MainServlet extends HttpServlet {
     public static Map<MethEnum, HashMap<String, ServiceEnum>> standRequest = new HashMap<>();
     public static ExecutorService threadPool;
     
-    public static void main(final String[] args) {
-    
-    }
-    
-    
     @Override
     public void init() {
+        // В конфигурации к applicationContext надо указывать путь к "org.example" там где у вас лежат
+        // другие анатации (@Controller, @Repository, @Service)
+        // Spring при запуске просматривает папки внутри того пути который вы указали, на наличие анотаций
+//        final var context = new AnnotationConfigApplicationContext("org.example.servlet");
+        final var context = new AnnotationConfigApplicationContext("org.example");
         
-        final var context = new AnnotationConfigApplicationContext("org.example.servlet");
-        final var controller = context.getBean("postController");
-        final var service = context.getBean(PostService.class);
+        // Вам не надо создавать еще один контролер! Он у вас уже объявлен в поле класса
+        // если вы создатите его здесь, то не сможете использовать его в методе service()
+//        final var controller = context.getBean("postController", PostController.class);
+        controller = context.getBean("postController", PostController.class);
+        
+        // суть Spring'а как раз в том что зависимости остальные он сделает сам
+        // просконироует все папки найдет анотации которые нужны для создания PostController'а
+        // Создание service на лекции было для того, чтобы показать что можно возвращать bean не
+        // только по нозванию, но и по классу
+//        final var service = context.getBean(PostService.class);
         
         standRequest.put(GET, ServiceEnum.getServEnum(GET));
         standRequest.put(POST, ServiceEnum.getServEnum(POST));
@@ -43,13 +50,13 @@ public class MainServlet extends HttpServlet {
         threadPool = Executors.newFixedThreadPool(6);
         
         // for test -------------------------------------------------------
-        try {
-            service.save(new Post("Первый пост"));
-            service.save(new Post("Второй пост"));
-            service.save(new Post("Третий пост"));
-        } catch (ExecutionException | InterruptedException e) {
-            throw new RuntimeException(e);
-        }
+//        try {
+//            service.save(new Post("Первый пост"));
+//            service.save(new Post("Второй пост"));
+//            service.save(new Post("Третий пост"));
+//        } catch (ExecutionException | InterruptedException e) {
+//            throw new RuntimeException(e);
+//        }
         //-----------------------------------------------------------------
     }
     /*

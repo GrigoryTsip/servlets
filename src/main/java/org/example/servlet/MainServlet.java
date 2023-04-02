@@ -1,17 +1,11 @@
 package org.example.servlet;
 
 import org.example.controller.PostController;
-import org.example.model.Post;
-import org.example.repository.PostRepository;
-import org.example.service.PostService;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.text.Annotation;
-import java.text.ParseException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.*;
@@ -26,47 +20,19 @@ public class MainServlet extends HttpServlet {
     
     @Override
     public void init() {
-        // В конфигурации к applicationContext надо указывать путь к "org.example" там где у вас лежат
-        // другие анатации (@Controller, @Repository, @Service)
-        // Spring при запуске просматривает папки внутри того пути который вы указали, на наличие анотаций
-//        final var context = new AnnotationConfigApplicationContext("org.example.servlet");
+        
         final var context = new AnnotationConfigApplicationContext("org.example");
-        
-        // Вам не надо создавать еще один контролер! Он у вас уже объявлен в поле класса
-        // если вы создатите его здесь, то не сможете использовать его в методе service()
-//        final var controller = context.getBean("postController", PostController.class);
         controller = context.getBean("postController", PostController.class);
-        
-        // суть Spring'а как раз в том что зависимости остальные он сделает сам
-        // просконироует все папки найдет анотации которые нужны для создания PostController'а
-        // Создание service на лекции было для того, чтобы показать что можно возвращать bean не
-        // только по нозванию, но и по классу
-//        final var service = context.getBean(PostService.class);
         
         standRequest.put(GET, ServiceEnum.getServEnum(GET));
         standRequest.put(POST, ServiceEnum.getServEnum(POST));
         standRequest.put(DELETE, ServiceEnum.getServEnum(DELETE));
         
         threadPool = Executors.newFixedThreadPool(6);
-        
-        // for test -------------------------------------------------------
-//        try {
-//            service.save(new Post("Первый пост"));
-//            service.save(new Post("Второй пост"));
-//            service.save(new Post("Третий пост"));
-//        } catch (ExecutionException | InterruptedException e) {
-//            throw new RuntimeException(e);
-//        }
-        //-----------------------------------------------------------------
     }
-    /*
-        final var repository = new PostRepository();
-        final var service = new PostService(repository);
-        controller = new PostController(service);
-     */
     
     @Override
-    protected void service(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+    protected void service(HttpServletRequest req, HttpServletResponse resp) {
         
         Runnable methThread = () -> {
             try {
@@ -104,7 +70,7 @@ public class MainServlet extends HttpServlet {
         
         
         Future<?> task = threadPool.submit(methThread);
-        while (!task.isDone()) continue;
+        while (!task.isDone()) {  }
     }
     
 }

@@ -3,16 +3,13 @@ package org.example.controller;
 import com.google.gson.Gson;
 import org.example.model.Post;
 import org.example.service.PostService;
-import org.springframework.stereotype.Controller;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
-@Controller
 public class PostController {
     public static final String APPLICATION_JSON = "application/json";
     private final PostService service;
@@ -32,7 +29,7 @@ public class PostController {
         writeResponce(data, response);
      }
     
-    public void save(Reader body, HttpServletResponse response) throws IOException, ExecutionException, InterruptedException {
+    public void save(Reader body, HttpServletResponse response) throws IOException {
         final var post = new Gson().fromJson(body, Post.class);
         ArrayList<Post> data = new ArrayList<>();
         data.add(service.save(post));
